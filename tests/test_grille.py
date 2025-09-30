@@ -2,18 +2,20 @@ import pytest
 from grille import Grille
 
 def test_init():
-    """
-    Teste que l'on peut créer une grille et que ses dimensions sont correctes.
-    """
     g = Grille(5, 8)
-    assert isinstance(g, Grille)
-    assert len(g.cases) == 5          # 5 lignes
-    assert len(g.cases[0]) == 8       # 8 colonnes
+    assert g.nombre_lignes == 5
+    assert g.nombre_colonnes == 8
+    # vérifie que la matrice contient bien uniquement des cases vides
+    for ligne in g.matrice:
+        for case in ligne:
+            assert case == g.vide
 
-def test_str():
-    """
-    Teste que l'affichage __str__ fonctionne correctement
-    """
-    g = Grille(2, 3)
-    expected = "∿∿∿\n∿∿∿"
-    assert str(g) == expected
+def test_tirer():
+    g = Grille(3, 3)
+    g.tirer(1, 1)
+    assert g.matrice[1][1] == g.touche
+
+def test_tirer_hors_grille():
+    g = Grille(3, 3)
+    with pytest.raises(ValueError):
+        g.tirer(5, 5)
