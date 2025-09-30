@@ -14,7 +14,7 @@ class Grille:
         self.touche = 'x'  # case où l'adversaire a tiré
 
         # Liste plate représentant la grille (taille = lignes * colonnes)
-        self.matrice = [self.vide for _ in range(nombre_lignes * nombre_colonnes)]
+        self.matrice = [self.vide for _ in range(nombre_lignes * nombre_colonnes)] # Création de la grille : toutes les cases initialisées avec '∿'
 
     def __str__(self):
         """Affichage de la grille sous forme de texte."""
@@ -35,9 +35,11 @@ class Grille:
         """
         Effectue un tir sur la case (ligne, colonne).
         Marque la case avec le caractère 'x' si coordonnées valides.
+        Retourne True si tir effectué, lève ValueError sinon.
         """
         if 0 <= ligne < self.nombre_lignes and 0 <= colonne < self.nombre_colonnes:
             index = ligne * self.nombre_colonnes + colonne
             self.matrice[index] = self.touche
+            return True
         else:
             raise ValueError("Coordonnées hors de la grille")
