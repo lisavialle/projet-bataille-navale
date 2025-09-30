@@ -17,15 +17,21 @@ class Grille:
         self.matrice = [self.vide for _ in range(nombre_lignes * nombre_colonnes)] # Création de la grille : toutes les cases initialisées avec '∿'
 
     def __str__(self):
-        """Affichage de la grille sous forme de texte."""
-        result = ""
-        for l in range(self.nombre_lignes):
-            ligne = ""
-            for c in range(self.nombre_colonnes):
-                index = l * self.nombre_colonnes + c
-                ligne += self.matrice[index]
-            result += ligne + "\n"
-        return result.strip()
+    """Affichage de la grille sous forme de texte, vide = '.', tir = 'x'"""
+    result = ""
+    for l in range(self.nombre_lignes):
+        ligne = ""
+        for c in range(self.nombre_colonnes):
+            index = l * self.nombre_colonnes + c
+            case = self.matrice[index]
+            # On transforme le symbole '∿' en '.' pour l'affichage
+            if case == self.vide:
+                ligne += "."
+            else:
+                ligne += case
+        result += ligne + "\n"
+    return result.strip()
+
 
     def afficher(self):
         """Affiche directement la grille."""
