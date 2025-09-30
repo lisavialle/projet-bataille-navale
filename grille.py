@@ -1,10 +1,19 @@
 class Grille:
+    """
+    Classe Grille pour le jeu de bataille navale.
+    Représente la grille du joueur ou de l'adversaire.
+    """
+
     def __init__(self, nombre_lignes, nombre_colonnes):
+        # Dimensions de la grille
         self.nombre_lignes = nombre_lignes
         self.nombre_colonnes = nombre_colonnes
-        self.vide = '∿'
-        self.touche = 'x'
-        # liste plate
+
+        # Codage des cases
+        self.vide = '∿'    # case vide
+        self.touche = 'x'  # case où l'adversaire a tiré
+
+        # Liste plate représentant la grille (taille = lignes * colonnes)
         self.matrice = [self.vide for _ in range(nombre_lignes * nombre_colonnes)]
 
     def __str__(self):
@@ -19,14 +28,16 @@ class Grille:
         return result.strip()
 
     def afficher(self):
-        """Affiche directement la grille (équivalent à print)."""
+        """Affiche directement la grille."""
         print(self)
 
-    def tirer(self, x, y):
-        """Effectue un tir sur la case (x, y)."""
-        if 0 <= x < self.nombre_lignes and 0 <= y < self.nombre_colonnes:
-            index = x * self.nombre_colonnes + y
+    def tirer(self, ligne, colonne):
+        """
+        Effectue un tir sur la case (ligne, colonne).
+        Marque la case avec le caractère 'x' si coordonnées valides.
+        """
+        if 0 <= ligne < self.nombre_lignes and 0 <= colonne < self.nombre_colonnes:
+            index = ligne * self.nombre_colonnes + colonne
             self.matrice[index] = self.touche
         else:
             raise ValueError("Coordonnées hors de la grille")
-
