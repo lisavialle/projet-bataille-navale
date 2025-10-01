@@ -28,13 +28,18 @@ class Grille:
     def afficher(self):
         print(self)
 
-    def tirer(self, ligne, colonne):
+    def tirer(self, ligne, colonne, touche=None):
+        """
+        Effectue un tir sur la case (ligne, colonne).
+        Si touche n'est pas fourni, utilise self.touche ('x').
+        """
         if 0 <= ligne < self.nombre_lignes and 0 <= colonne < self.nombre_colonnes:
             index = ligne * self.nombre_colonnes + colonne
-            self.matrice[index] = self.touche
+            self.matrice[index] = touche if touche is not None else self.touche
             return True
         else:
             raise ValueError("Coordonnées hors de la grille")
+
 
     def ajoute(self, bateau: Bateau):
         """Ajoute un bateau sur la grille si toutes ses positions sont valides"""

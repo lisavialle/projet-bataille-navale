@@ -49,3 +49,9 @@ def test_ajoute_bateau():
     b3 = Bateau(1, 0, longueur=4, vertical=True)
     assert g.ajoute(b3) is False
     assert g.matrice == ["∿", "∿", "∿", "⛵", "⛵", "∿"]
+
+
+def test_tirer_personnalise():
+    g = Grille(3, 3)
+    g.tirer(1, 1, touche='💥')
+    assert g.matrice[1 * g.nombre_colonnes + 1] == '💥'
