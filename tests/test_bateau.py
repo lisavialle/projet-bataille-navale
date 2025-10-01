@@ -1,5 +1,6 @@
 import pytest
 from bateau import Bateau
+from grille import Grille
 
 def test_creation_bateau_defaut():
     b = Bateau(2, 3)
@@ -22,4 +23,19 @@ def test_positions_horizontal():
 def test_positions_vertical():
     b = Bateau(2, 3, longueur=3, vertical=True)
     assert b.positions == [(2, 3), (3, 3), (4, 3)]
+
+def test_bateau_coule():
+    g = Grille(3, 3)
+    b = Bateau(1, 0, longueur=2)
+    
+    # Avant tout tir : le bateau n'est pas coulé
+    assert b.coule(g) is False
+
+    # Tir sur une seule case : le bateau n'est pas coulé
+    g.tirer(1, 0)
+    assert b.coule(g) is False
+
+    # Tir sur toutes les cases du bateau : le bateau est coulé
+    g.tirer(1, 1)
+    assert b.coule(g) is True
 

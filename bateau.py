@@ -11,8 +11,17 @@ class Bateau:
 
     @property
     def positions(self):
-        """Renvoie la liste des positions (ligne, colonne) occupées par le bateau."""
         if self.vertical:
             return [(self.ligne + i, self.colonne) for i in range(self.longueur)]
         else:
             return [(self.ligne, self.colonne + i) for i in range(self.longueur)]
+
+    def coule(self, grille) -> bool:
+        """
+        Retourne True si toutes les positions du bateau sont touchées ('x') sur la grille.
+        """
+        for (l, c) in self.positions:
+            index = l * grille.nombre_colonnes + c
+            if grille.matrice[index] != grille.touche:
+                return False
+        return True
