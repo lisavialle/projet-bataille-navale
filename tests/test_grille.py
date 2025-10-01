@@ -30,3 +30,22 @@ def test_str():
     attendu = "........\n........\n...x....\n........\n........"
     assert str(g) == attendu
 
+from bateau import Bateau
+
+def test_ajoute_bateau():
+    g = Grille(2, 3)
+    # Ajout bateau horizontal qui rentre
+    b1 = Bateau(1, 0, longueur=2, vertical=False)
+    assert g.ajoute(b1) is True
+    assert g.matrice == ["∿", "∿", "∿", "⛵", "⛵", "∿"]
+
+    # Ajout bateau vertical qui ne rentre pas
+    b2 = Bateau(1, 0, longueur=2, vertical=True)
+    assert g.ajoute(b2) is False
+    # Grille inchangée
+    assert g.matrice == ["∿", "∿", "∿", "⛵", "⛵", "∿"]
+
+    # Ajout bateau trop long
+    b3 = Bateau(1, 0, longueur=4, vertical=True)
+    assert g.ajoute(b3) is False
+    assert g.matrice == ["∿", "∿", "∿", "⛵", "⛵", "∿"]
