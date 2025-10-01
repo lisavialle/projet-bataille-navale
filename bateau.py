@@ -9,6 +9,7 @@ class Bateau:
         orientation = "vertical" if self.vertical else "horizontal"
         return f"Bateau(ligne={self.ligne}, colonne={self.colonne}, longueur={self.longueur}, orientation={orientation})"
 
+    @property
     def positions(self):
         """Renvoie la liste des positions (ligne, colonne) occupées par le bateau."""
         if self.vertical:
