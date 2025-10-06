@@ -1,32 +1,45 @@
 import random
 import time
-import os
 from grille import Grille
 from bateau import PorteAvion, Croiseur, Torpilleur, SousMarin
 
 # ---------------------------
+# Couleurs ANSI
+# ---------------------------
+RESET = "\033[0m"
+ROUGE = "\033[91m"
+VERT = "\033[92m"
+CYAN = "\033[96m"
+JAUNE = "\033[93m"
+
+# ---------------------------
 # Placement aléatoire sécurisé
 # ---------------------------
+
 def generer_positions_valides(grille: Grille, bateau):
     positions_valides = []
+
     for vertical in [False, True]:
         bateau.vertical = vertical
         for l in range(grille.nombre_lignes):
             for c in range(grille.nombre_colonnes):
                 bateau.ligne = l
                 bateau.colonne = c
+
                 rentre_dans_grille = all(
                     0 <= pos[0] < grille.nombre_lignes and 0 <= pos[1] < grille.nombre_colonnes
                     for pos in bateau.positions
                 )
                 if not rentre_dans_grille:
                     continue
+
                 chevauchement = any(
                     grille.matrice[pos[0]*grille.nombre_colonnes + pos[1]] != grille.vide
                     for pos in bateau.positions
                 )
                 if not chevauchement:
                     positions_valides.append((l, c, vertical))
+
     return positions_valides
 
 def placer_bateau_aleatoirement(grille: Grille, bateau):
@@ -41,32 +54,36 @@ def placer_bateau_aleatoirement(grille: Grille, bateau):
     return True
 
 # ---------------------------
-# Affichage grille avec curseur
+# Affichage grille avancé
 # ---------------------------
-def afficher_grille_ptg(grille: Grille, curseur_l: int, curseur_c: int):
-    lines = []
-    header = "   " + " ".join(str(i) for i in range(grille.nombre_colonnes))
-    lines.append(header)
-    for i in range(grille.nombre_lignes):
-        row = f"{i}  "
-        for j in range(grille.nombre_colonnes):
-            index = i * grille.nombre_colonnes + j
-            case = grille.matrice[index]
-            char = case
-            if i == curseur_l and j == curseur_c:
-                char = f"[{char}]"  # Curseur autour de la case
-            row += char + " "
-        lines.append(row)
-    return "\n".join(lines)
+
+def afficher_grille_coloree_avance(grille_visible: Grille):
+    grid_text = "   " + " ".join(f"{i}" for i in range(grille_visible.nombre_colonnes)) + "\n"
+    for i in range(grille_visible.nombre_lignes):
+        ligne = f"{i}  "
+        for j in range(grille_visible.nombre_colonnes):
+            index = i * grille_visible.nombre_colonnes + j
+            case = grille_visible.matrice[index]
+
+            if case == "x":
+                ligne += ROUGE + "x " + RESET
+            elif case == "💣":
+                ligne += JAUNE + "💣 " + RESET
+            elif case in ["🚢", "⛴", "🚣", "🐟"]:
+                ligne += VERT + case + " " + RESET
+            else:
+                ligne += CYAN + "∿ " + RESET
+        grid_text += ligne + "\n"
+    return grid_text
 
 # ---------------------------
-# Jeu principal interactif
+# Jeu principal avancé
 # ---------------------------
-def jeu_gui_final():
+
+def jeu_gui_avance():
     grille_interne = Grille(8, 10)
     grille_visible = Grille(8, 10)
 
-    # Crée un bateau de chaque type
     bateaux = [
         PorteAvion(0, 0),
         Croiseur(0, 0),
@@ -74,62 +91,74 @@ def jeu_gui_final():
         SousMarin(0, 0)
     ]
 
-    # Placement aléatoire sécurisé
     for b in bateaux:
         placer_bateau_aleatoirement(grille_interne, b)
 
     coups = 0
     bateaux_restants = bateaux.copy()
-    curseur_l, curseur_c = 0, 0
 
-    os.system('cls' if os.name == 'nt' else 'clear')
-    print("Bataille Navale Interactive ! Utilisez les flèches pour déplacer le curseur et Entrée pour tirer.")
+    print("\033c", end="")
+    print(CYAN + "Bienvenue dans la bataille navale avancée !\n" + RESET)
 
     while bateaux_restants:
-        print(afficher_grille_ptg(grille_visible, curseur_l, curseur_c))
-        print("\nUtilisez les touches: Z=haut, S=bas, Q=gauche, D=droite, Entrée=tir")
-        key = input("Direction (Z/S/Q/D) ou tir (Entrée): ").strip().upper()
+        print(f"Nombre de coups joués : {coups}\n")
+        print(afficher_grille_coloree_avance(grille_visible))
 
-        if key == "Z":
-            curseur_l = max(0, curseur_l - 1)
-        elif key == "S":
-            curseur_l = min(grille_visible.nombre_lignes - 1, curseur_l + 1)
-        elif key == "Q":
-            curseur_c = max(0, curseur_c - 1)
-        elif key == "D":
-            curseur_c = min(grille_visible.nombre_colonnes - 1, curseur_c + 1)
-        elif key == "":
-            coups += 1
-            touche_bateau = False
+        try:
+            x = int(input("Entrez la ligne (0-7) : "))
+            y = int(input("Entrez la colonne (0-9) : "))
+        except ValueError:
+            print("Entrée invalide. Réessayez.")
+            print("\033c", end="")
+            continue
 
-            for b in bateaux_restants:
-                if (curseur_l, curseur_c) in b.positions:
-                    grille_visible.tirer(curseur_l, curseur_c, touche="💣")
-                    touche_bateau = True
+        if not (0 <= x < grille_visible.nombre_lignes and 0 <= y < grille_visible.nombre_colonnes):
+            print("Coordonnées hors de la grille.")
+            print("\033c", end="")
+            continue
 
-                    if b.coule(grille_visible):
-                        for l, c in b.positions:
-                            grille_visible.matrice[l * grille_visible.nombre_colonnes + c] = b.marque
-                        bateaux_restants.remove(b)
-                        os.system('cls' if os.name == 'nt' else 'clear')
-                        print(afficher_grille_ptg(grille_visible, curseur_l, curseur_c))
-                        print(f"🎉 Vous avez coulé un {b.__class__.__name__} !")
-                        time.sleep(1.5)
-                    break
+        coups += 1
+        touche_bateau = False
 
-            if not touche_bateau:
-                grille_visible.tirer(curseur_l, curseur_c)
-                os.system('cls' if os.name == 'nt' else 'clear')
-                print(afficher_grille_ptg(grille_visible, curseur_l, curseur_c))
-                print("💥 Raté !")
-                time.sleep(1)
+        for b in bateaux_restants:
+            if (x, y) in b.positions:
+                grille_visible.tirer(x, y, touche="💣")
+                touche_bateau = True
 
-        os.system('cls' if os.name == 'nt' else 'clear')
+                # Si le bateau est coulé après ce tir
+                if b.coule(grille_visible):
+                    # Remplit la grille avec la marque du bateau
+                    for (l, c) in b.positions:
+                        grille_visible.matrice[l * grille_visible.nombre_colonnes + c] = b.marque
 
+                    print("\033c", end="")
+                    print(f"Nombre de coups joués : {coups}\n")
+                    print(afficher_grille_coloree_avance(grille_visible))
+                    
+                    # Message clair pour indiquer qu'un bateau est coulé
+                    print(VERT + f"🎉 Bravo ! Vous avez COULÉ le {b.__class__.__name__} !" + RESET)
+                    input(JAUNE + "👉 Appuyez sur Entrée pour continuer..." + RESET)
+
+                    bateaux_restants.remove(b)
+                break  # on sort de la boucle des bateaux si touché
+
+        if not touche_bateau:
+            grille_visible.tirer(x, y)  # Tir raté
+            print("\033c", end="")
+            print(f"Nombre de coups joués : {coups}\n")
+            print(afficher_grille_coloree_avance(grille_visible))
+            print(ROUGE + "💥 Raté !" + RESET)
+            time.sleep(1)  # petit délai pour le tir raté
+
+        # Efface écran avant le prochain tour
+        print("\033c", end="")
+
+    # Partie terminée
+    print(afficher_grille_coloree_avance(grille_visible))
     print(f"Félicitations ! Vous avez coulé tous les bateaux en {coups} coups !")
 
 # ---------------------------
 # Exécution directe
 # ---------------------------
 if __name__ == "__main__":
-    jeu_gui_final()
+    jeu_gui_avance()
